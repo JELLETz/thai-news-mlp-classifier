@@ -1,0 +1,29 @@
+{
+  "labels": [
+    "politics",
+    "human_rights",
+    "quality_of_life",
+    "international",
+    "social",
+    "environment",
+    "economics",
+    "culture",
+    "labor",
+    "national_security",
+    "ict",
+    "education"
+  ],
+  "threshold": 0.3,
+  "hidden": 128,
+  "lr": 0.001,
+  "batch_size": 64,
+  "weight_decay": 0.0,
+  "best_epoch": 2,
+  "val_macro_f1": 0.6895,
+  "val_micro_f1": 0.721,
+  "features": {
+    "vocab": "vocab.json",
+    "mode": "binary",
+    "max_chars": 3000
+  }
+}

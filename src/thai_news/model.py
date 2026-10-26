@@ -11,12 +11,18 @@ softmax / cross_entropy / one_hot เก็บไว้สำหรับแบ�
 import numpy as np
 
 
-def init_params(n_input, n_hidden, n_classes, seed=1, scale=0.5):
+def init_params(n_input, n_hidden, n_classes, seed=1, scale=None):
+    # scale=None → ปรับความกว้างของการสุ่มตามจำนวน input (He initialization)
+    #   ใน 02 input มีแค่ 2 ตัว ใช้ 0.5 ได้ · ข่าวมี input 5,000 ตัว ถ้ายังใช้ 0.5
+    #   z1 = ผลรวมของ weight × input หลายร้อยตัว → ค่าใหญ่มาก → sigmoid/ReLU ทำงานผิดปกติตั้งแต่เริ่ม
+    #   std = √(2 / n_input) ทำให้ z1 มีขนาดพอดีๆ ไม่ว่า input จะมีกี่ตัว
     rng = np.random.default_rng(seed)
+    s1 = np.sqrt(2 / n_input) if scale is None else scale
+    s2 = np.sqrt(1 / n_hidden) if scale is None else scale
     return {
-        "W1": rng.normal(0, scale, (n_hidden, n_input)),   
+        "W1": rng.normal(0, s1, (n_hidden, n_input)),
         "b1": np.zeros(n_hidden),
-        "W2": rng.normal(0, scale, (n_classes, n_hidden)),  
+        "W2": rng.normal(0, s2, (n_classes, n_hidden)),
         "b2": np.zeros(n_classes),
     }
 
@@ -73,3 +79,41 @@ def backward(t, cache, P):
 
 def predict_proba(x, P):
     return forward(x, P)["p"]
+
+
+# =================================================================
+# Mini-batch: ทำทีละหลายข่าวพร้อมกัน (ใช้ตอนเทรนจริง)
+#   X = (B, n_input) แถวละข่าว · T = (B, n_labels) เฉลย multi-hot แถวละข่าว
+#   หลักการเหมือน forward / backward ด้านบนทุกอย่าง แค่ "ซ้อน" ข่าวเป็นแถว
+# =================================================================
+
+def forward_batch(X, P):
+    """
+    เหมือน forward() แต่ X มีหลายแถว
+    """
+    Z1 = X @ P["W1"].T + P["b1"] # (B, n_input) @ (n_input, n_hidden) = (B, n_hidden) / B คือ จำนวน batch, n_input คือ จำนวนคลังคำ, n_hidden คือจำนวน neuron ใน hidden layers
+    H  = relu(Z1)
+    Z2 = H @ P["W2"].T + P["b2"] # (B, n_hidden) @ (n_hidden, n_labels) = (B, n_labels) / n_labels คือ จำนวนแท็ก
+    probs  = sigmoid(Z2)
+    return {"X": X, "Z1": Z1, "H": H, "probs": probs}
+
+def backward_batch(T, cache, P):
+    """
+    เหมือน backward() แต่ทำทีละ B ข่าว แล้วเฉลี่ย gradient ของทั้ง batch
+    """
+
+    B = len(T)
+    dZ2 = (cache["probs"] - T) / B  # (B, n_labels)
+    dW2 = dZ2.T @ cache["H"] # (n_labels, n_hidden)
+    db2 = dZ2.sum(axis=0) # (n_labels,)
+    dH = dZ2 @ P["W2"]  # (B, n_hidden)  
+    dZ1 = dH * relu_grad(cache["Z1"]) # (B, n_hidden)
+    dW1 = dZ1.T @ cache["X"] # (n_hidden, n_input)
+    db1 = dZ1.sum(axis=0) # (n_hidden,)
+    return {"W1": dW1, "b1": db1, "W2": dW2, "b2": db2}
+
+
+def bce_batch(probs, T, eps=1e-7):
+    """binary cross-entropy เฉลี่ยต่อข่าว (ใช้ดูกราฟ loss) · ไม่ต้องแก้"""
+    probs = np.clip(probs, eps, 1 - eps)
+    return float(-np.mean(np.sum(T * np.log(probs) + (1 - T) * np.log(1 - probs), axis=1)))
