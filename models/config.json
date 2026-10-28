@@ -1,0 +1,73 @@
+{
+  "labels": [
+    "politics",
+    "human_rights",
+    "quality_of_life",
+    "international",
+    "social",
+    "environment",
+    "economics",
+    "culture",
+    "labor",
+    "national_security",
+    "ict",
+    "education"
+  ],
+  "lr": 0.001,
+  "batch_size": 64,
+  "features": {
+    "mode": "binary",
+    "max_chars": 3000
+  },
+  "name": "weight_decay",
+  "vocab_size": 5000,
+  "hidden": 128,
+  "weight_decay": 0.001,
+  "best_epoch": 2,
+  "epochs_run": 4,
+  "global_threshold": 0.35,
+  "val_macro_global": 0.6901,
+  "val_micro_global": 0.7251,
+  "label_thresholds": [
+    0.45,
+    0.4,
+    0.4,
+    0.35,
+    0.3,
+    0.3,
+    0.25,
+    0.3,
+    0.4,
+    0.4,
+    0.4,
+    0.35
+  ],
+  "val_macro_per_label": 0.6959,
+  "val_micro_per_label": 0.7264,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 2.1383681108843247,
+      "val_loss": 2.5858708238905006,
+      "val_macro": 0.6476787584304547
+    },
+    {
+      "epoch": 2,
+      "train_loss": 1.8670116991525763,
+      "val_loss": 2.5650690650421124,
+      "val_macro": 0.6613700167294261
+    },
+    {
+      "epoch": 3,
+      "train_loss": 1.6826165851242914,
+      "val_loss": 2.5867872512779098,
+      "val_macro": 0.6594272975878342
+    },
+    {
+      "epoch": 4,
+      "train_loss": 1.5238791287092641,
+      "val_loss": 2.615916184760159,
+      "val_macro": 0.6589221652727982
+    }
+  ]
+}
