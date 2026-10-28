@@ -26,7 +26,7 @@ train = __import__("04_train")
 
 
 def load_run(name):
-    folder = ROOT / "models" / "runs" / name
+    folder = ROOT / "models" / "runs" / name if name else ROOT / "models"   # ไม่ระบุ = model ที่เลือก (ขึ้น GitHub)
     with open(folder / "config.json", encoding="utf-8") as f:
         config = json.load(f)
     P = dict(np.load(folder / "mlp.npz"))
@@ -36,10 +36,9 @@ def load_run(name):
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser()
-    parser.add_argument("--run", default="weight_decay")
-    name = parser.parse_args().run
-
-    config, P = load_run(name)
+    parser.add_argument("--run", help="ชื่อรันใน models/runs/ (ไม่ใส่ = model ใน models/)")
+    config, P = load_run(parser.parse_args().run)
+    name = config["name"]
     features = ROOT / "data" / f"vocab_{config['vocab_size']}"
     Y = np.load(ROOT / "data" / "Y.npz")
     global_th = config["global_threshold"]

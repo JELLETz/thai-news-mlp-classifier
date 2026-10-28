@@ -55,7 +55,6 @@ def tune_thresholds(probs, Y_true, candidates=np.arange(0.05, 0.96, 0.05)):
     f1_list = []
     for th in candidates:
         Y_pred = (probs > th).astype(int)
-        Y_pred = (probs > th).astype(int)
         counts = per_label_counts(Y_true, Y_pred)
         _, _, f1 = precision_recall_f1(counts["tp"], counts["fp"], counts["fn"])
         f1_list.append(f1) 
