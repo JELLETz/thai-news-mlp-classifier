@@ -3,3 +3,5 @@ __pycache__/
 .venv/
 data/
 .ipynb_checkpoints/
+models/runs/
+reports/runs/
