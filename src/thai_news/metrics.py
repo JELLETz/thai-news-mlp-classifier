@@ -48,6 +48,20 @@ def micro_f1(counts):
     return f1
 
 
+# ---------------------------------------------------------------
+# threshold แยกต่อแท็ก (เลือกจาก validation เท่านั้น)
+# ---------------------------------------------------------------
+def tune_thresholds(probs, Y_true, candidates=np.arange(0.05, 0.96, 0.05)):
+    f1_list = []
+    for th in candidates:
+        Y_pred = (probs > th).astype(int)
+        Y_pred = (probs > th).astype(int)
+        counts = per_label_counts(Y_true, Y_pred)
+        _, _, f1 = precision_recall_f1(counts["tp"], counts["fp"], counts["fn"])
+        f1_list.append(f1) 
+    f1_table = np.array(f1_list)
+    best_row = np.argmax(f1_table, axis=0)
+    return candidates[best_row] 
 
 
 def report(Y_true, Y_pred, label_names):
